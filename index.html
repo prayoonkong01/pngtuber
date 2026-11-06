@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8"><title>PNGTuber</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--panel:#15171c;--ink:#f2f4f8;--mute:#9aa3b2;--accent:#4aa8ff;--line:#2a2f3a;--chip:#262b35}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;font-family:"Noto Sans Thai","Segoe UI",system-ui,sans-serif;color:var(--ink);background:#00ff00}
+body.dark{background:#1b1e26}body.white{background:#fff}
+#stage{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center}
+#char{position:relative;height:calc(var(--size,88)*1vh);aspect-ratio:var(--ar,.7);max-width:96vw;transform-origin:50% 100%;will-change:transform}
+.st{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;visibility:hidden}.st.on{visibility:visible}
+#empty{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#000a;font-size:20px;text-align:center;padding:24px;pointer-events:none}
+body.dark #empty{color:#fff9}
+#zzz{position:absolute;left:68%;top:10%;display:none}#char.sleep #zzz{display:block}
+#zzz b{position:absolute;color:#dcecff;text-shadow:0 0 8px #4aa8ff;font-size:3.4vh;opacity:0;animation:zf 3.6s infinite}
+#zzz b:nth-child(2){animation-delay:1.2s}#zzz b:nth-child(3){animation-delay:2.4s}
+@keyframes zf{0%{transform:translate(0,0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translate(4vh,-12vh) scale(1.5);opacity:0}}
+#gear{position:fixed;top:10px;right:10px;width:40px;height:40px;border-radius:10px;border:0;background:#000a;color:#fff;font-size:20px;cursor:pointer;opacity:0;transition:opacity .3s;z-index:5}
+body.hover #gear,body.paneled #gear{opacity:1}
+#panel{position:fixed;top:0;right:0;bottom:0;width:350px;background:var(--panel);border-left:1px solid var(--line);padding:14px;overflow:auto;font-size:14px;line-height:1.5;display:none;z-index:4}
+body.paneled #panel{display:block}body.paneled #stage{right:350px}body.paneled #gear{right:362px}
+h1{font-size:16px;margin:0 0 10px}h2{font-size:14px;margin:16px 0 6px}
+.btn{width:100%;padding:9px;border:0;border-radius:8px;background:var(--chip);color:var(--ink);font:inherit;cursor:pointer}.btn.pri{background:var(--accent);color:#06121f;font-weight:600}
+.btn:focus-visible,input:focus-visible,select:focus-visible,.slot:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.guide{background:#1d2a3a;border:1px solid #2d4a6b;border-radius:10px;padding:10px;margin-bottom:10px}.guide ol{margin:6px 0 8px 18px;padding:0}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.slot{border:2px dashed #3a4150;border-radius:10px;height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:12.5px;color:var(--mute);cursor:pointer;position:relative;overflow:hidden;background:var(--chip)}
+.slot.over{border-color:var(--accent)}.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:repeating-conic-gradient(#2b303b 0 25%,#232832 0 50%) 0/16px 16px}
+.slot span{position:relative;z-index:1;background:#000b;padding:1px 6px;border-radius:6px;margin-top:auto;margin-bottom:4px;color:#fff}.slot.has span{font-size:11.5px}
+.note{color:var(--mute);font-size:12.5px;margin-top:6px}
+.ctl{margin-top:10px}.ctl .top{display:flex;justify-content:space-between;color:var(--mute);font-size:13px}.ctl output{color:var(--ink)}input[type=range]{width:100%}
+select{width:100%;background:var(--chip);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px;font:inherit}
+#meter{height:8px;border-radius:4px;background:var(--chip);margin-top:10px;position:relative;overflow:hidden}#bar{height:100%;width:0;background:var(--accent)}#thr{position:absolute;top:0;bottom:0;width:2px;background:#fff}
+.krow{display:flex;gap:6px;align-items:center;margin-top:8px}.krow span{flex:1}.krow button{width:auto;padding:6px 10px;min-width:120px}.krow .x{min-width:0;padding:6px 9px}
+.krow button.listen{background:var(--accent);color:#06121f}
+details{margin-top:14px;border-top:1px solid var(--line);padding-top:8px}summary{cursor:pointer;font-weight:600}
+.chk{display:flex;gap:8px;align-items:center;margin-top:8px}#msg{margin-top:10px;color:#ffd27a;font-size:13px;min-height:1.4em}
+</style></head><body class="paneled">
+<div id="stage"><div id="char"><img class="st" id="s0" alt=""><img class="st" id="s1" alt=""><img class="st" id="s2" alt=""><img class="st" id="s3" alt=""><div id="zzz"><b>Z</b><b>Z</b><b>z</b></div></div></div>
+<div id="empty">ลากรูปตัวละครไปวางในแผงด้านขวา</div>
+<button id="gear" aria-label="แสดง/ซ่อนแผงตั้งค่า" title="แสดง/ซ่อนแผงตั้งค่า">⚙</button>
+<aside id="panel">
+  <h1>PNGTuber</h1>
+  <div class="guide" id="guide"><b>เริ่มใช้ใน 3 ขั้น</b><ol><li>ลากรูปตัวละครไปวางในช่องด้านล่าง</li><li>เลือกไมค์ แล้วลองพูด</li><li>ใน OBS จับหน้าต่างนี้ + ฟิลเตอร์ Chroma Key สีเขียว</li></ol><button class="btn" id="guideok">เข้าใจแล้ว</button></div>
+  <h2>รูปตัวละคร</h2>
+  <div class="slots" id="slots"></div>
+  <div class="note">ต้องมีอย่างน้อยรูปแรก ถ้าใส่ครบทั้ง 4 ตัวละครจะพูดและกะพริบตาด้วย รูปพื้นขาวจะถูกลบพื้นให้ ควรเป็นภาพขนาดเดียวกันและตัวละครอยู่ตำแหน่งเดียวกัน</div>
+  <h2>ไมค์</h2>
+  <select id="dev" aria-label="เลือกไมค์"><option value="">ไมค์เริ่มต้น</option></select>
+  <div id="meter"><div id="bar"></div><div id="thr"></div></div>
+  <div class="ctl"><div class="top"><label for="sens">ความไว (เส้นขาว = จุดที่เริ่มพูด)</label><output id="o-sens"></output></div><input id="sens" type="range" min="1" max="60"></div>
+  <button class="btn" id="calib" style="margin-top:8px">วัดเสียงรบกวน (เงียบ 2 วิ)</button>
+  <h2>ปุ่มลัด (ใช้ได้ตอนเล่นเกม และปุ่มยังถึงโปรแกรมอื่นด้วย)</h2>
+  <div id="keys"></div>
+  <div class="note">กด "ตั้ง" แล้วกดคอมโบที่ต้องการ เช่น Ctrl+M · Esc ยกเลิก ถ้าอยากให้ปิดไมค์ OBS พร้อมกัน ให้ตั้งเป็นปุ่มเดียวกับ OBS</div>
+  <details><summary>ขั้นสูง</summary>
+    <div class="ctl"><div class="top"><label for="bounce">แรงเด้งตอนพูด</label><output id="o-bounce"></output></div><input id="bounce" type="range" min="0" max="100"></div>
+    <div class="ctl"><div class="top"><label for="size">ขนาดตัวละคร</label><output id="o-size"></output></div><input id="size" type="range" min="40" max="100"></div>
+    <div class="ctl"><div class="top"><label for="gain">ขยายเสียงไมค์</label><output id="o-gain"></output></div><input id="gain" type="range" min="20" max="500" step="5"></div>
+    <h2>พื้นหลัง</h2><select id="bg"><option value="green">เขียว (สำหรับ Chroma Key)</option><option value="dark">เทาเข้ม</option><option value="white">ขาว</option></select>
+    <label class="chk"><input type="checkbox" id="ns">ลดเสียงรบกวน</label>
+    <button class="btn" id="reset" style="margin-top:12px">ลบรูปทั้งหมด</button>
+  </details>
+  <div id="msg"></div>
+</aside>
+<script>
+(function(){
+const $=i=>document.getElementById(i),api=window.api||{learn(){},cancelLearn(){},onKey(){},onLearned(){},onHookError(){}};
+const DEF={sens:12,gain:100,bounce:55,size:88,bg:'green',ns:1,dev:'',guide:1,panel:1};
+let cfg=Object.assign({},DEF),keys={mute:null,eyes:null,panel:null};
+try{Object.assign(cfg,JSON.parse(localStorage.getItem('p1z-cfg')||'{}'));Object.assign(keys,JSON.parse(localStorage.getItem('p1z-keys')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('p1z-cfg',JSON.stringify(cfg));localStorage.setItem('p1z-keys',JSON.stringify(keys))}catch(e){}};
+const say=s=>{$('msg').textContent=s};
+
+/* storage */
+const dbp=new Promise(r=>{try{const q=indexedDB.open('p1z-app',1);q.onupgradeneeded=()=>q.result.createObjectStore('a');q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}catch(e){r(null)}});
+async function io(m,fn){const db=await dbp;if(!db)return null;return new Promise(r=>{try{const q=fn(db.transaction('a',m).objectStore('a'));q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}catch(e){r(null)}})}
+const aPut=(k,b)=>io('readwrite',s=>s.put(b,k)),aDel=k=>io('readwrite',s=>s.delete(k)),aGet=k=>io('readonly',s=>s.get(k));
+
+/* images */
+const LAB=['ลืมตา · ปากปิด','ลืมตา · ปากเปิด','หลับตา · ปากปิด','หลับตา · ปากเปิด'],have=[0,0,0,0],S=[0,1,2,3].map(i=>$('s'+i));
+function loadImg(b){return new Promise((res,rej)=>{const u=URL.createObjectURL(b),im=new Image();im.onload=()=>{res(im);URL.revokeObjectURL(u)};im.onerror=rej;im.src=u})}
+const toBlob=(c,t)=>new Promise(r=>c.toBlob(r,t||'image/webp',0.92));
+async function cutout(file){
+  const im=await loadImg(file),sc=Math.min(1,1000/im.naturalHeight),w=Math.round(im.naturalWidth*sc),h=Math.round(im.naturalHeight*sc);
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(im,0,0,w,h);
+  const id=x.getImageData(0,0,w,h),p=id.data,vis=new Uint8Array(w*h),st=[];
+  const bg=i=>{const o=i*4;return p[o+3]<16||Math.min(p[o],p[o+1],p[o+2])>=238},push=i=>{if(!vis[i]&&bg(i)){vis[i]=1;st.push(i)}};
+  for(let a=0;a<w;a++){push(a);push((h-1)*w+a)}for(let a=0;a<h;a++){push(a*w);push(a*w+w-1)}
+  while(st.length){const i=st.pop(),px=i%w;if(px>0)push(i-1);if(px<w-1)push(i+1);if(i>=w)push(i-w);if(i<w*(h-1))push(i+w)}
+  const ring=[];for(let i=0;i<w*h;i++){if(vis[i])continue;const px=i%w;if((px>0&&vis[i-1])||(px<w-1&&vis[i+1])||(i>=w&&vis[i-w])||(i<w*(h-1)&&vis[i+w])){const o=i*4;if(p[o]+p[o+1]+p[o+2]>600)ring.push(i)}}
+  for(let i=0;i<w*h;i++)if(vis[i])p[i*4+3]=0;ring.forEach(i=>{p[i*4+3]=0});x.putImageData(id,0,0);return toBlob(c)}
+async function rebuild(){
+  const ims=[];for(let i=0;i<4;i++){const b=await aGet('p'+i);ims.push(b?await loadImg(b).catch(()=>null):null)}
+  let bb=null;
+  ims.forEach(im=>{if(!im)return;const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data;
+    let x0=c.width,y0=c.height,x1=-1,y1=-1;for(let y=0;y<c.height;y++)for(let xx=0;xx<c.width;xx++)if(d[(y*c.width+xx)*4+3]>20){if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(y<y0)y0=y;if(y>y1)y1=y}
+    if(x1>=x0)bb=bb?[Math.min(bb[0],x0),Math.min(bb[1],y0),Math.max(bb[2],x1),Math.max(bb[3],y1)]:[x0,y0,x1,y1]});
+  for(let i=0;i<4;i++){have[i]=0;const slot=$('slot'+i);slot.classList.remove('has');const old=slot.querySelector('img');if(old)old.remove();S[i].removeAttribute('src');
+    if(!ims[i]||!bb)continue;const cw=bb[2]-bb[0]+1,ch=bb[3]-bb[1]+1,c=document.createElement('canvas');c.width=cw;c.height=ch;c.getContext('2d').drawImage(ims[i],-bb[0],-bb[1]);
+    const u=URL.createObjectURL(await toBlob(c));S[i].src=u;have[i]=1;slot.classList.add('has');const t=document.createElement('img');t.src=u;t.alt='';slot.prepend(t);
+    $('char').style.setProperty('--ar',cw/ch)}
+  $('empty').style.display=have[0]?'none':'flex';cur=-1}
+$('slots').innerHTML=LAB.map((l,i)=>`<div class="slot" id="slot${i}" tabindex="0" role="button" aria-label="รูป ${l}"><span>${i+1}. ${l}</span><input type="file" accept="image/*" hidden></div>`).join('');
+LAB.forEach((l,i)=>{const s=$('slot'+i),f=s.querySelector('input');
+  const take=async file=>{if(!file||!/^image\//.test(file.type)){say('ใช้ได้เฉพาะไฟล์รูป');return}say('กำลังประมวลผลรูป…');try{await aPut('p'+i,await cutout(file));await rebuild();say('')}catch(e){say('เปิดรูปนี้ไม่ได้')}};
+  s.onclick=()=>f.click();s.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f.click()}};f.onchange=()=>{take(f.files[0]);f.value=''};
+  s.ondragover=e=>{e.preventDefault();s.classList.add('over')};s.ondragleave=()=>s.classList.remove('over');s.ondrop=e=>{e.preventDefault();s.classList.remove('over');take(e.dataTransfer.files[0])}});
+$('reset').onclick=async()=>{if(!confirm('ลบรูปทั้งหมดที่ใส่ไว้?'))return;for(let i=0;i<4;i++)await aDel('p'+i);await rebuild()};
+
+/* sliders & settings */
+const SL=['sens','gain','bounce','size'];
+function apply(){$('char').style.setProperty('--size',cfg.size);$('thr').style.left=cfg.sens+'%';document.body.classList.toggle('dark',cfg.bg==='dark');document.body.classList.toggle('white',cfg.bg==='white');document.body.classList.toggle('paneled',!!cfg.panel);if(gainN)gainN.gain.value=cfg.gain/100}
+SL.forEach(k=>{const i=$(k);i.oninput=()=>{cfg[k]=parseFloat(i.value);$('o-'+k).textContent=cfg[k]+(k==='gain'||k==='size'?'%':'');apply();save()}});
+$('bg').onchange=e=>{cfg.bg=e.target.value;apply();save()};$('ns').onchange=e=>{cfg.ns=e.target.checked?1:0;save();if(running)openMic()};
+function sync(){SL.forEach(k=>{$(k).value=cfg[k];$('o-'+k).textContent=cfg[k]+(k==='gain'||k==='size'?'%':'')});$('bg').value=cfg.bg;$('ns').checked=!!cfg.ns;$('guide').style.display=cfg.guide?'block':'none';apply()}
+$('guideok').onclick=()=>{cfg.guide=0;sync();save()};
+$('gear').onclick=()=>run('panel');
+
+/* mic */
+let ctx,an,buf,running=false,stream,srcN,gainN,hp,lp,muted=false,level=0,smooth=0;
+async function openMic(){try{
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  const a={echoCancellation:true,noiseSuppression:!!cfg.ns,autoGainControl:false};if(cfg.dev)a.deviceId={exact:cfg.dev};
+  stream=await navigator.mediaDevices.getUserMedia({audio:a});
+  if(!ctx){ctx=new AudioContext();hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=300;lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3400;gainN=ctx.createGain();an=ctx.createAnalyser();an.fftSize=1024;hp.connect(lp);lp.connect(gainN);gainN.connect(an);buf=new Uint8Array(an.fftSize)}
+  if(ctx.state==='suspended')ctx.resume();if(srcN)srcN.disconnect();srcN=ctx.createMediaStreamSource(stream);srcN.connect(hp);
+  stream.getAudioTracks().forEach(t=>t.enabled=!muted);running=true;apply();say('');
+  const d=(await navigator.mediaDevices.enumerateDevices()).filter(x=>x.kind==='audioinput'),s=$('dev');s.innerHTML='<option value="">ไมค์เริ่มต้น</option>';
+  d.forEach((x,i)=>{const o=document.createElement('option');o.value=x.deviceId;o.textContent=x.label||('ไมค์ '+(i+1));s.appendChild(o)});s.value=cfg.dev;
+}catch(e){running=false;say('เปิดไมค์ไม่ได้ ตรวจสอบว่ามีไมค์และอนุญาตให้ใช้แล้ว')}}
+$('dev').onchange=e=>{cfg.dev=e.target.value;save();openMic()};
+$('calib').onclick=()=>{if(!running){say('ยังไม่พบไมค์');return}say('กำลังวัด… อยู่เงียบ ๆ 2 วินาที');let mx=0;const t=performance.now();(function f(){mx=Math.max(mx,level);if(performance.now()-t<2000)requestAnimationFrame(f);else{cfg.sens=Math.min(60,Math.max(1,Math.round(mx*130)+2));sync();save();say('ตั้งความไวให้แล้ว ลองพูดดู')}})()};
+
+/* hotkeys */
+const KN={mute:'ปิดไมค์ / หลับ',eyes:'หลับตาค้าง',panel:'ซ่อน/แสดงแผงตั้งค่า'};let learningAct=null,eyesHeld=false;
+const fmt=d=>[d.ctrl&&'Ctrl',d.alt&&'Alt',d.shift&&'Shift',d.meta&&'Win',String(d.label).replace(/^Numpad/,'Num ')].filter(Boolean).join('+');
+$('keys').innerHTML=Object.keys(KN).map(a=>`<div class="krow"><span>${KN[a]}</span><button class="btn" data-set="${a}"></button><button class="btn x" data-clr="${a}" aria-label="ล้างปุ่ม">✕</button></div>`).join('');
+function refreshKeys(){document.querySelectorAll('[data-set]').forEach(b=>{const a=b.dataset.set;b.classList.remove('listen');b.textContent=keys[a]?fmt(keys[a]):'ยังไม่ตั้ง · กดเพื่อตั้ง'})}
+document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{const a=b.dataset.set;if(learningAct)api.cancelLearn();learningAct=a;refreshKeys();b.classList.add('listen');b.textContent='กดคอมโบที่ต้องการ…';api.learn()});
+document.querySelectorAll('[data-clr]').forEach(b=>b.onclick=()=>{keys[b.dataset.clr]=null;save();refreshKeys()});
+api.onLearned(d=>{const a=learningAct;learningAct=null;if(a&&!d.cancel){Object.keys(keys).forEach(k=>{if(keys[k]&&keys[k].keycode===d.keycode&&!!keys[k].ctrl===d.ctrl&&!!keys[k].alt===d.alt&&!!keys[k].shift===d.shift&&!!keys[k].meta===d.meta)keys[k]=null});keys[a]=d;save()}refreshKeys()});
+api.onKey(d=>{if(learningAct)return;const a=Object.keys(keys).find(k=>{const b=keys[k];return b&&b.keycode===d.keycode&&!!b.ctrl===d.ctrl&&!!b.alt===d.alt&&!!b.shift===d.shift&&!!b.meta===d.meta});if(a)run(a)});
+api.onHookError(m=>say('ปุ่มลัดทั่วเครื่องใช้ไม่ได้: '+m));
+function run(a){if(a==='mute'){muted=!muted;if(stream)stream.getAudioTracks().forEach(t=>t.enabled=!muted)}else if(a==='eyes')eyesHeld=!eyesHeld;else if(a==='panel'){cfg.panel=cfg.panel?0:1;apply();save()}}
+window.__run=run;
+
+/* hover reveal for gear */
+let ht;document.addEventListener('mousemove',()=>{document.body.classList.add('hover');clearTimeout(ht);ht=setTimeout(()=>document.body.classList.remove('hover'),2200)});
+
+/* animation */
+let cur=-1,holdUntil=0,blinkAt=performance.now()+3000,blinkEnd=0;const t0=performance.now();
+function show(i){if(i!==cur){if(cur>=0)S[cur].classList.remove('on');S[i].classList.add('on');cur=i}}
+function pick(ec,mo){const e=ec&&have[2]?2:0,m=mo&&have[e+1]?1:0;return e+m}
+function frame(now){
+  if(running&&!muted){an.getByteTimeDomainData(buf);let s=0;for(let i=0;i<buf.length;i++){const v=(buf[i]-128)/128;s+=v*v}level=Math.min(1,Math.sqrt(s/buf.length)*6)}else level=0;
+  smooth+=(level-smooth)*(level>smooth?0.5:0.12);$('bar').style.width=(smooth*100)+'%';
+  const th=cfg.sens/100,talk=muted?0:Math.max(0,(smooth-th)/(1-th)),t=(now-t0)/1000;
+  if(talk>0.02)holdUntil=now+140;if(now>=blinkAt){blinkEnd=now+130;blinkAt=now+2500+Math.random()*3500}
+  const sl=muted;$('char').classList.toggle('sleep',sl&&!!have[0]);
+  if(have[0])show(pick(sl||eyesHeld||now<blinkEnd,!sl&&now<holdUntil));
+  const b=cfg.bounce/100,br=Math.sin(t*(sl?0.8:1.6))*0.012*(sl?2:1);
+  const y=-talk*b*8-Math.abs(Math.sin(t*14))*talk*b*2,rot=Math.sin(t*9)*talk*b*2.5,sy=1+br+talk*b*0.04,sx=1-br*0.6-talk*b*0.024;
+  $('char').style.transform=`translateY(${y.toFixed(2)}vh) rotate(${rot.toFixed(2)}deg) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
+  requestAnimationFrame(frame)}
+sync();refreshKeys();rebuild().then(()=>{requestAnimationFrame(frame)});openMic();
+window.__state=()=>({have:have.slice(),cur,muted,eyesHeld,keys});
+})();
+</script></body></html>
